@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  unlimited-ocr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unlimited-ocr-app
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount application code for development
+      - ./webapp:/app
+      # Persistent storage for uploads and outputs
+      - ocr-uploads:/app/uploads
+      - ocr-outputs:/app/outputs
+      # Model cache (optional, for faster restarts)
+      - model-cache:/root/.cache/huggingface
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  ocr-uploads:
+    driver: local
+  ocr-outputs:
+    driver: local
+  model-cache:
+    driver: local
+
+networks:
+  default:
+    name: unlimited-ocr-network
