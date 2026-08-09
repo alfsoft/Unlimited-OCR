@@ -83,6 +83,7 @@ RUN printf '%s\n' \
 # Create Supervisor config using printf for reliability
 RUN PHP_FPM_BIN=$(ls /usr/sbin/php*-fpm 2>/dev/null | head -1) && \
     if [ -z "$PHP_FPM_BIN" ]; then PHP_FPM_BIN="/usr/sbin/php-fpm"; fi && \
+    echo "Using PHP-FPM binary: $PHP_FPM_BIN" && \
     printf '%s\n' \
     '[supervisord]' \
     'nodaemon=true' \
@@ -95,7 +96,7 @@ RUN PHP_FPM_BIN=$(ls /usr/sbin/php*-fpm 2>/dev/null | head -1) && \
     'stdout_logfile=/var/log/nginx/access.log' \
     '' \
     '[program:php-fpm]' \
-    "command=${PHP_FPM_BIN} -F" \
+    "command=$PHP_FPM_BIN -F" \
     'autostart=true' \
     'autorestart=true' \
     'stderr_logfile=/var/log/php-fpm/error.log' \
