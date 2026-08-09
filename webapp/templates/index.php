@@ -416,7 +416,7 @@
             progressBar.textContent = '0%';
 
             try {
-                const response = await fetch('/api/upload', {
+                const response = await fetch('/api/v1/ocr/submit', {
                     method: 'POST',
                     body: formData
                 });
@@ -425,7 +425,7 @@
                 
                 if (response.ok) {
                     currentJobId = data.job_id;
-                    showMessage(data.message, 'success');
+                    showMessage(data.message || 'Задача запущена', 'success');
                     startProgressPolling();
                 } else {
                     showMessage(data.error || 'Ошибка при загрузке файлов', 'error');
@@ -442,14 +442,14 @@
         function startProgressPolling() {
             progressInterval = setInterval(async () => {
                 try {
-                    const response = await fetch(`/api/progress/${currentJobId}`);
+                    const response = await fetch(`/api/v1/ocr/status/${currentJobId}`);
                     const data = await response.json();
 
                     if (response.ok) {
-                        const percent = data.progress_percent;
+                        const percent = data.progress_percent || 0;
                         progressBar.style.width = percent + '%';
                         progressBar.textContent = percent + '%';
-                        statusText.textContent = `Обработано ${data.current} из ${data.total} файлов`;
+                        statusText.textContent = `Обработано ${data.current || 0} из ${data.total || 0} файлов`;
 
                         if (data.status === 'completed') {
                             clearInterval(progressInterval);
@@ -467,16 +467,18 @@
             statusText.textContent = 'Обработка завершена!';
             
             try {
-                const response = await fetch(`/api/result/${currentJobId}`);
+                const response = await fetch(`/api/v1/ocr/result/${currentJobId}`);
                 const data = await response.json();
 
                 if (response.ok) {
                     resultsGrid.innerHTML = '';
-                    data.results.forEach((result, index) => {
+                    const results = data.results || [];
+                    const format = document.getElementById('outputFormat').value;
+                    
+                    results.forEach((result, index) => {
                         if (result && result.trim()) {
                             const card = document.createElement('div');
                             card.className = 'result-card';
-                            const format = document.getElementById('outputFormat').value;
                             card.innerHTML = `
                                 <h4>📄 Документ ${index + 1}</h4>
                                 <div class="result-text">${escapeHtml(result)}</div>
@@ -488,6 +490,8 @@
                         }
                     });
                     resultsSection.style.display = 'block';
+                } else {
+                    showMessage('Ошибка при получении результатов: ' + (data.error || 'Неизвестная ошибка'), 'error');
                 }
             } catch (error) {
                 showMessage('Ошибка при получении результатов: ' + error.message, 'error');
