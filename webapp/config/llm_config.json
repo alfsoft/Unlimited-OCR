@@ -1,0 +1,54 @@
+{
+  "providers": {
+    "sglang": {
+      "name": "SGLang",
+      "url": "http://127.0.0.1:10000",
+      "model": "Unlimited-OCR",
+      "enabled": true,
+      "api_type": "openai_compat",
+      "prompt": "document parsing.",
+      "temperature": 0,
+      "timeout": 1200,
+      "max_retries": 3,
+      "supports_images": true,
+      "custom_params": {
+        "no_repeat_ngram_size": 35,
+        "ngram_window": 128,
+        "image_mode": "gundam"
+      }
+    },
+    "llamacpp": {
+      "name": "llama.cpp",
+      "url": "http://host.docker.internal:8080",
+      "model": "",
+      "enabled": false,
+      "api_type": "openai_compat",
+      "prompt": "Extract all text from this document image accurately. Preserve formatting, line breaks, and structure.",
+      "temperature": 0.1,
+      "timeout": 300,
+      "max_retries": 3,
+      "supports_images": true,
+      "custom_params": {
+        "max_tokens": 4096,
+        "stop": []
+      }
+    },
+    "ollama": {
+      "name": "Ollama",
+      "url": "http://host.docker.internal:11434",
+      "model": "llava",
+      "enabled": false,
+      "api_type": "ollama",
+      "prompt": "Extract all text from this document image accurately. Preserve formatting, line breaks, and structure.",
+      "temperature": 0.1,
+      "timeout": 300,
+      "max_retries": 3,
+      "supports_images": true,
+      "custom_params": {
+        "num_predict": 4096,
+        "keep_alive": "5m"
+      }
+    }
+  },
+  "active_provider": "sglang"
+}
