@@ -17,7 +17,7 @@ WORKDIR /app
 # Copy application files
 COPY webapp/ /app/
 
-# Install Python dependencies
+# Install Python dependencies (removed sglang - using external API)
 RUN pip install --no-cache-dir \
     torch==2.10.0 \
     torchvision==0.25.0 \
@@ -29,10 +29,9 @@ RUN pip install --no-cache-dir \
     easydict==1.13 \
     pymupdf==1.27.2.2 \
     psutil==7.2.2 \
-    sglang \
-    kernels==0.11.7 \
     flask \
-    flask-cors
+    flask-cors \
+    requests
 
 # Configure PHP-FPM
 RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/*/fpm/php.ini && \
