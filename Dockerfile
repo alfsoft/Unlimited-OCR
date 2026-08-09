@@ -1,12 +1,8 @@
 FROM python:3.12-slim
 
-# Install system dependencies
+# Install system dependencies (removed php-fpm as it's not needed)
 RUN apt-get update && apt-get install -y \
     nginx \
-    php-fpm \
-    php-cli \
-    php-curl \
-    php-json \
     supervisor \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -33,32 +29,18 @@ RUN pip install --no-cache-dir \
     flask-cors \
     requests
 
-# Configure PHP-FPM
-RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/*/fpm/php.ini && \
-    sed -i 's/listen = \/run\/php\/php.*-fpm.sock/listen = 9000/g' /etc/php/*/fpm/pool.d/www.conf
-
-# Create Nginx config using printf to avoid heredoc issues
-RUN printf '%s\n' \
+# Configure Nginx for static files and API proxying (removed PHP-FPM configuration)
+RUN printf '%s\\n' \
     'server {' \
     '    listen 80;' \
     '    server_name localhost;' \
     '    root /app/templates;' \
-    '    index index.php index.html;' \
+    '    index index.html;' \
     '' \
     '    client_max_body_size 500M;' \
     '' \
     '    location / {' \
-    '        try_files $uri $uri/ /index.php?$query_string;' \
-    '    }' \
-    '' \
-    '    location ~ \\.php$ {' \
-    '        include fastcgi_params;' \
-    '        fastcgi_pass 127.0.0.1:9000;' \
-    '        fastcgi_index index.php;' \
-    '        fastcgi_param SCRIPT_FILENAME /app/templates$fastcgi_script_name;' \
-    '        fastcgi_buffer_size 128k;' \
-    '        fastcgi_buffers 4 256k;' \
-    '        fastcgi_busy_buffers_size 256k;' \
+    '        try_files $uri $uri/ /index.html;' \
     '    }' \
     '' \
     '    location /api/ {' \
@@ -80,11 +62,8 @@ RUN printf '%s\n' \
     '    }' \
     '}' > /etc/nginx/sites-available/default
 
-# Create Supervisor config using printf for reliability
-RUN PHP_FPM_BIN=$(ls /usr/sbin/php*-fpm 2>/dev/null | head -1) && \
-    if [ -z "$PHP_FPM_BIN" ]; then PHP_FPM_BIN="/usr/sbin/php-fpm"; fi && \
-    echo "Using PHP-FPM binary: $PHP_FPM_BIN" && \
-    printf '%s\n' \
+# Create Supervisor config using printf for reliability (removed php-fpm program)
+RUN printf '%s\\n' \
     '[supervisord]' \
     'nodaemon=true' \
     '' \
@@ -95,13 +74,6 @@ RUN PHP_FPM_BIN=$(ls /usr/sbin/php*-fpm 2>/dev/null | head -1) && \
     'stderr_logfile=/var/log/nginx/error.log' \
     'stdout_logfile=/var/log/nginx/access.log' \
     '' \
-    '[program:php-fpm]' \
-    "command=$PHP_FPM_BIN -F" \
-    'autostart=true' \
-    'autorestart=true' \
-    'stderr_logfile=/var/log/php-fpm/error.log' \
-    'stdout_logfile=/var/log/php-fpm/access.log' \
-    '' \
     '[program:python-backend]' \
     'command=python /app/python/app.py' \
     'directory=/app' \
@@ -111,9 +83,9 @@ RUN PHP_FPM_BIN=$(ls /usr/sbin/php*-fpm 2>/dev/null | head -1) && \
     'stdout_logfile=/var/log/python/access.log' \
     'environment=PYTHONUNBUFFERED="1"' > /etc/supervisor/conf.d/supervisord.conf
 
-# Create necessary directories with proper permissions
-RUN mkdir -p /app/uploads /app/outputs /var/log/nginx /var/log/php-fpm /var/log/python && \
-    chmod -R 777 /app/uploads /app/outputs /var/log/nginx /var/log/php-fpm /var/log/python
+# Create necessary directories with proper permissions (removed php-fpm log directory)
+RUN mkdir -p /app/uploads /app/outputs /var/log/nginx /var/log/python && \
+    chmod -R 777 /app/uploads /app/outputs /var/log/nginx /var/log/python
 
 EXPOSE 80
 
