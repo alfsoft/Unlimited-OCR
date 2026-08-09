@@ -1,41 +1,72 @@
 ```
+# Docker related
+.dockerenv
+Dockerfile.*
+
 # Dependencies
 node_modules/
 venv/
 .venv/
 __pycache__/
-.mypy_cache/
+*.egg-info/
+.Python
 .pytest_cache/
+.mypy_cache/
 
 # Build artifacts
 dist/
 build/
 target/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dylib
+*.dll
+*.exe
+*.o
+*.obj
+*.a
+*.lib
 
 # Logs and temp files
 *.log
 *.tmp
+*.temp
 *.swp
+*.swo
+*~
 
-# Environment
+# Environment variables
 .env
 .env.local
-*.env.*
+.env.*
+.env~*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
 # Editors
 .vscode/
 .idea/
-
-# OS specific
-.DS_Store
-Thumbs.db
+*.sublime-project
+*.sublime-workspace
+nbproject/
 
 # Coverage
 coverage/
 htmlcov/
 .coverage
+*.coverage
 
-# Compressed files
+# Compression
 *.zip
 *.gz
 *.tar
@@ -54,4 +85,8 @@ htmlcov/
 *.Z
 *.lz
 *.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```

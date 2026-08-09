@@ -3,10 +3,10 @@ FROM python:3.12-slim
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
-    php-fpm \
-    php-cli \
-    php-curl \
-    php-json \
+    php8.2-fpm \
+    php8.2-cli \
+    php8.2-curl \
+    php8.2-json \
     supervisor \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -34,8 +34,8 @@ RUN pip install --no-cache-dir \
     requests
 
 # Configure PHP-FPM
-RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/*/fpm/php.ini && \
-    sed -i 's/listen = \/run\/php\/php.*-fpm.sock/listen = 9000/g' /etc/php/*/fpm/pool.d/www.conf
+RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.2/fpm/php.ini && \
+    sed -i 's/listen = \/run\/php\/php.*-fpm.sock/listen = 9000/g' /etc/php/8.2/fpm/pool.d/www.conf
 
 # Create Nginx config using printf to avoid heredoc issues
 RUN printf '%s\n' \
@@ -93,7 +93,7 @@ RUN printf '%s\n' \
     'stdout_logfile=/var/log/nginx/access.log' \
     '' \
     '[program:php-fpm]' \
-    'command=/usr/sbin/php-fpm -F' \
+    'command=/usr/sbin/php-fpm8.2 -F' \
     'autostart=true' \
     'autorestart=true' \
     'stderr_logfile=/var/log/php-fpm/error.log' \
