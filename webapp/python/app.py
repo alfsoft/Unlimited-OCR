@@ -17,6 +17,26 @@ import hashlib
 app = Flask(__name__)
 CORS(app)
 
+# Log all requests for debugging
+@app.before_request
+def log_request_info():
+    print(f"[API] >>> {request.method} {request.path} from {request.remote_addr}")
+    if request.args:
+        print(f"[API] Query params: {dict(request.args)}")
+    if request.content_type:
+        print(f"[API] Content-Type: {request.content_type}")
+
+@app.after_request
+def log_response_info(response):
+    print(f"[API] <<< {response.status_code} for {request.method} {request.path}")
+    return response
+
+@app.errorhandler(404)
+def not_found_error(error):
+    print(f"[API] ERROR 404: Route not found - {request.method} {request.path}")
+    print(f"[API] Available routes: {[rule.rule for rule in app.url_map.iter_rules()]}")
+    return jsonify({'error': 'Not Found', 'path': request.path, 'method': request.method}), 404
+
 UPLOAD_FOLDER = '/app/uploads'
 OUTPUT_FOLDER = '/app/outputs'
 CONFIG_FILE = '/app/config/llm_config.json'
