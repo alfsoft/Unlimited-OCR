@@ -81,32 +81,33 @@ RUN printf '%s\n' \
     '    }' \
     '}' > /etc/nginx/sites-available/default
 
-# Create Supervisor config
-RUN echo '[supervisord]
-nodaemon=true
-
-[program:nginx]
-command=/usr/sbin/nginx -g "daemon off;"
-autostart=true
-autorestart=true
-stderr_logfile=/var/log/nginx/error.log
-stdout_logfile=/var/log/nginx/access.log
-
-[program:php-fpm]
-command=/usr/sbin/php-fpm -F
-autostart=true
-autorestart=true
-stderr_logfile=/var/log/php-fpm/error.log
-stdout_logfile=/var/log/php-fpm/access.log
-
-[program:python-backend]
-command=python /app/python/app.py
-directory=/app
-autostart=true
-autorestart=true
-stderr_logfile=/var/log/python/error.log
-stdout_logfile=/var/log/python/access.log
-environment=PYTHONUNBUFFERED="1"' > /etc/supervisor/conf.d/supervisord.conf
+# Create Supervisor config using printf for reliability
+RUN printf '%s\n' \
+    '[supervisord]' \
+    'nodaemon=true' \
+    '' \
+    '[program:nginx]' \
+    'command=/usr/sbin/nginx -g "daemon off;"' \
+    'autostart=true' \
+    'autorestart=true' \
+    'stderr_logfile=/var/log/nginx/error.log' \
+    'stdout_logfile=/var/log/nginx/access.log' \
+    '' \
+    '[program:php-fpm]' \
+    'command=/usr/sbin/php-fpm -F' \
+    'autostart=true' \
+    'autorestart=true' \
+    'stderr_logfile=/var/log/php-fpm/error.log' \
+    'stdout_logfile=/var/log/php-fpm/access.log' \
+    '' \
+    '[program:python-backend]' \
+    'command=python /app/python/app.py' \
+    'directory=/app' \
+    'autostart=true' \
+    'autorestart=true' \
+    'stderr_logfile=/var/log/python/error.log' \
+    'stdout_logfile=/var/log/python/access.log' \
+    'environment=PYTHONUNBUFFERED="1"' > /etc/supervisor/conf.d/supervisord.conf
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/uploads /app/outputs /var/log/nginx /var/log/php-fpm /var/log/python && \
