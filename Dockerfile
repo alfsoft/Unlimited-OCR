@@ -81,7 +81,9 @@ RUN printf '%s\n' \
     '}' > /etc/nginx/sites-available/default
 
 # Create Supervisor config using printf for reliability
-RUN printf '%s\n' \
+RUN PHP_FPM_BIN=$(ls /usr/sbin/php*-fpm 2>/dev/null | head -1) && \
+    if [ -z "$PHP_FPM_BIN" ]; then PHP_FPM_BIN="/usr/sbin/php-fpm"; fi && \
+    printf '%s\n' \
     '[supervisord]' \
     'nodaemon=true' \
     '' \
@@ -93,7 +95,7 @@ RUN printf '%s\n' \
     'stdout_logfile=/var/log/nginx/access.log' \
     '' \
     '[program:php-fpm]' \
-    'command=/usr/sbin/php-fpm -F' \
+    "command=${PHP_FPM_BIN} -F" \
     'autostart=true' \
     'autorestart=true' \
     'stderr_logfile=/var/log/php-fpm/error.log' \
