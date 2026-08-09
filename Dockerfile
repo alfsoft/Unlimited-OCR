@@ -38,47 +38,48 @@ RUN pip install --no-cache-dir \
 RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/*/fpm/php.ini && \
     sed -i 's/listen = \/run\/php\/php.*-fpm.sock/listen = 9000/g' /etc/php/*/fpm/pool.d/www.conf
 
-# Create Nginx config
-RUN echo 'server {
-    listen 80;
-    server_name localhost;
-    root /app/templates;
-    index index.php index.html;
-
-    client_max_body_size 500M;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        include fastcgi_params;
-        fastcgi_pass 127.0.0.1:9000;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME /app/templates$fastcgi_script_name;
-        fastcgi_buffer_size 128k;
-        fastcgi_buffers 4 256k;
-        fastcgi_busy_buffers_size 256k;
-    }
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:5000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_connect_timeout 600s;
-        proxy_send_timeout 600s;
-        proxy_read_timeout 600s;
-    }
-
-    location /uploads/ {
-        alias /app/uploads/;
-    }
-
-    location /outputs/ {
-        alias /app/outputs/;
-    }
-}' > /etc/nginx/sites-available/default
+# Create Nginx config using printf to avoid heredoc issues
+RUN printf '%s\n' \
+    'server {' \
+    '    listen 80;' \
+    '    server_name localhost;' \
+    '    root /app/templates;' \
+    '    index index.php index.html;' \
+    '' \
+    '    client_max_body_size 500M;' \
+    '' \
+    '    location / {' \
+    '        try_files $uri $uri/ /index.php?$query_string;' \
+    '    }' \
+    '' \
+    '    location ~ \\.php$ {' \
+    '        include fastcgi_params;' \
+    '        fastcgi_pass 127.0.0.1:9000;' \
+    '        fastcgi_index index.php;' \
+    '        fastcgi_param SCRIPT_FILENAME /app/templates$fastcgi_script_name;' \
+    '        fastcgi_buffer_size 128k;' \
+    '        fastcgi_buffers 4 256k;' \
+    '        fastcgi_busy_buffers_size 256k;' \
+    '    }' \
+    '' \
+    '    location /api/ {' \
+    '        proxy_pass http://127.0.0.1:5000/;' \
+    '        proxy_set_header Host $host;' \
+    '        proxy_set_header X-Real-IP $remote_addr;' \
+    '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' \
+    '        proxy_connect_timeout 600s;' \
+    '        proxy_send_timeout 600s;' \
+    '        proxy_read_timeout 600s;' \
+    '    }' \
+    '' \
+    '    location /uploads/ {' \
+    '        alias /app/uploads/;' \
+    '    }' \
+    '' \
+    '    location /outputs/ {' \
+    '        alias /app/outputs/;' \
+    '    }' \
+    '}' > /etc/nginx/sites-available/default
 
 # Create Supervisor config
 RUN echo '[supervisord]
