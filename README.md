@@ -1,346 +1,246 @@
-<p align="center">
-  <img src="assets/baidu.png" width="40%" alt="Baidu Inc." />
-</p>
+# 🚀 Unlimited-OCR-UI
 
-<hr>
-
-<h1 align="center">Unlimited OCR Works</h1>
+**Веб-интерфейс для Unlimited OCR с поддержкой LLM (llama.cpp, Ollama, SGLang)**
 
 <div align="center">
 
-<a href="https://trendshift.io/repositories/62053?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-62053" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/62053/daily" alt="baidu%2FUnlimited-OCR | Trendshift" width="250" height="55"/></a>
-  
-  <a href="https://github.com/baidu/Unlimited-OCR">
-    <img alt="GitHub" src="https://img.shields.io/badge/GitHub-Code-181717?logo=github&logoColor=white" />
-  </a>
-  <a href="https://huggingface.co/baidu/Unlimited-OCR">
-    <img alt="Hugging Face" src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-ffc107?color=ffc107&logoColor=white" />
-  </a>
+[![Original Project](https://img.shields.io/badge/Original-Unlimited--OCR-blue?logo=github)](https://github.com/baidu/Unlimited-OCR)
+[![Documentation](https://img.shields.io/badge/Docs-README--UNLIMITED--OCR-green)](README-UNLIMITED-OCR.MD)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)
+[![API](https://img.shields.io/badge/API-RESTful-orange)](webapp/API_DOCUMENTATION.md)
+
 </div>
 
-<div align="center">
-    <a href="https://arxiv.org/abs/2606.23050">
-    <img alt="arXiv" src="https://img.shields.io/badge/arXiv-Unlimited OCR Works-b31b1b?logo=arxiv&logoColor=white" />
-  </a>
-  <a href="https://x.com/Baidu_Inc" target="_blank">
-    <img alt="Twitter Follow" src="https://img.shields.io/badge/Twitter-Baidu Inc.-white?logo=x&logoColor=white" />
-  </a>
-</div>
+---
 
-<h3 align="center">Welcome the Era of One-shot Long-horizon Parsing.</h3>
+## 📌 О проекте
 
-<p align="center">
-    <img src="assets/Unlimited-OCR.png" width="1000" alt="Unlimited OCR overview" />
-</p>
+Этот репозиторий (**Unlimited-OCR-UI**) предоставляет современный веб-интерфейс и API для работы с моделью **Unlimited OCR** от Baidu.
 
+🔗 **Оригинальный проект**: [baidu/Unlimited-OCR](https://github.com/baidu/Unlimited-OCR)  
+📄 **Документация оригинальной модели**: [README-UNLIMITED-OCR.MD](README-UNLIMITED-OCR.MD)
 
-## Release
-- [2026/07/21] 🤝 Thanks to the [ms-swift community](https://github.com/modelscope/ms-swift) for their support, our model now supports training with [ms-swift](https://github.com/modelscope/ms-swift).
-- [2026/07/03] 🤝 Thanks to the Baidu Cloud team for their support. Our model is now available on [Baidu Cloud](https://cloud.baidu.com/doc/OCR/s/fmr1p39gb).
-- [2026/06/28] 🤝 Thanks to the [vLLM community](https://github.com/vllm-project/vllm) and [Tianyu Guo](https://github.com/gty111) for their support, our model now supports vLLM inference.
-- [2026/06/24] 🤝 Thanks to [AK](https://x.com/_akhaliq) for creating a demo for us. It is now available at [Hugging Face Spaces](https://huggingface.co/spaces/baidu/Unlimited-OCR).
-- [2026/06/23] 📄 Our paper is now available on [arXiv](https://arxiv.org/abs/2606.23050).
-- [2026/06/23] 🤝 Thanks to the [ModelScope community](https://github.com/modelscope) for their support. Our model is now available at [ModelScope](https://modelscope.cn/models/PaddlePaddle/Unlimited-OCR).
-- [2026/06/22] 🚀 We present [Unlimited-OCR](https://github.com/baidu/Unlimited-OCR), aiming to push [Deepseek-OCR](https://github.com/deepseek-ai/DeepSeek-OCR) one step further.
+### ✨ Возможности
 
-## Inference
+- 🌐 **Веб-интерфейс**: Drag-and-drop загрузка, прогресс-бар, мультиформатный вывод
+- 🔌 **REST API**: Полноценное API v1 для интеграции с внешними системами
+- 🤖 **LLM поддержка**: SGLang, llama.cpp, Ollama с настраиваемыми провайдерами
+- 📊 **Форматы вывода**: TXT, CSV, JSON, HTML
+- 🔄 **Real-time обновления**: SSE streaming для отслеживания прогресса
+- 🐳 **Docker Ready**: Запуск в один клик на Windows/Mac/Linux
 
-### Transformers
-Inference using Huggingface transformers on NVIDIA GPUs. Requirements tested on python 3.12.3 + CUDA12.9：
+---
 
-```
-torch==2.10.0
-torchvision==0.25.0
-transformers==4.57.1
-Pillow==12.1.1
-matplotlib==3.10.8
-einops==0.8.2
-addict==2.4.0
-easydict==1.13
-pymupdf==1.27.2.2
-psutil==7.2.2
+## Для Windows с Docker Desktop
+
+### Шаг 1: Подготовка
+
+1. Установите [Docker Desktop для Windows](https://www.docker.com/products/docker-desktop/)
+2. Включите поддержку WSL 2 (рекомендуется)
+3. Убедитесь, что есть NVIDIA GPU с последними драйверами
+
+### Шаг 2: Запуск приложения
+
+```powershell
+# Откройте PowerShell или CMD в директории проекта
+cd C:\path\to\workspace
+
+# Запустите контейнер
+docker-compose up --build -d
+
+# Следите за логами (опционально)
+docker-compose logs -f
 ```
 
-```python
-import os
-import torch
-from transformers import AutoModel, AutoTokenizer
+### Шаг 3: Доступ к приложению
 
-model_name = 'baidu/Unlimited-OCR'
-
-tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-model = AutoModel.from_pretrained(
-    model_name,
-    trust_remote_code=True,
-    use_safetensors=True,
-    torch_dtype=torch.bfloat16,
-)
-model = model.eval().cuda()
-
-# ── Single image supports two configs: gundam or base ──
-# gundam: base_size=1024, image_size=640, crop_mode=True
-# base: base_size=1024, image_size=1024, crop_mode=False
-model.infer(
-    tokenizer,
-    prompt='<image>document parsing.',
-    image_file='your_image.jpg',
-    output_path='your/output/dir',
-    base_size=1024, image_size=640, crop_mode=True,
-    max_length=32768,
-    no_repeat_ngram_size=35, ngram_window=128,
-    save_results=True,
-)
-
-# ── Multi page / PDF only uses base (image_size=1024) ──
-model.infer_multi(
-    tokenizer,
-    prompt='<image>Multi page parsing.',
-    image_files=['page1.png', 'page2.png', 'page3.png'],
-    output_path='your/output/dir',
-    image_size=1024,
-    max_length=32768,
-    no_repeat_ngram_size=35, ngram_window=1024,
-    save_results=True,
-)
-
-# ── PDF (convert pages to images, then multi-page parsing) ──
-import tempfile, fitz  # PyMuPDF
-
-def pdf_to_images(pdf_path, dpi=300):
-    doc = fitz.open(pdf_path)
-    tmp_dir = tempfile.mkdtemp(prefix='pdf_ocr_')
-    mat = fitz.Matrix(dpi / 72, dpi / 72)
-    paths = []
-    for i, page in enumerate(doc):
-        out = os.path.join(tmp_dir, f'page_{i+1:04d}.png')
-        page.get_pixmap(matrix=mat).save(out)
-        paths.append(out)
-    doc.close()
-    return paths
-
-model.infer_multi(
-    tokenizer,
-    prompt='<image>Multi page parsing.',
-    image_files=pdf_to_images('your_doc.pdf', dpi=300),
-    output_path='your/output/dir',
-    image_size=1024,
-    max_length=32768,
-    no_repeat_ngram_size=35, ngram_window=1024,
-    save_results=True,
-)
+Откройте браузер и перейдите на:
+```
+http://localhost:8080
 ```
 
-### vLLM
+### Шаг 4: Использование
 
-Please refer to the official vLLM recipe for deployment details:
+1. **Загрузите файлы**: Перетащите PDF/изображения в область загрузки
+2. **Выберите формат**: TXT, CSV, JSON или HTML
+3. **Запустите распознавание**: Нажмите кнопку "🚀 Запустить распознавание"
+4. **Следите за прогрессом**: Прогресс-бар покажет статус обработки
+5. **Получите результат**: Скачайте распознанный текст
 
-**Recipe:** [https://recipes.vllm.ai/baidu/Unlimited-OCR](https://recipes.vllm.ai/baidu/Unlimited-OCR)
+---
 
-##### Docker Images
-Use the following Docker images depending on your GPU platform:
+## 📁 Структура файлов
 
-**Default (CUDA 13.0):**
-```bash
-docker pull vllm/vllm-openai:unlimited-ocr
 ```
-**For Hopper GPUs (CUDA 12.9)**
-```bash
-docker pull vllm/vllm-openai:unlimited-ocr-cu129
-```
-
-### SGLang
-
-Set up the environment (uv-managed virtualenv). Install the local SGLang wheel first,
-then pin `kernels==0.9.0` and install PyMuPDF for PDF-to-image conversion:
-```shell
-uv venv --python 3.12
-source .venv/bin/activate
-
-uv pip install wheel/sglang-0.0.0.dev11416+g92e8bb79e-py3-none-any.whl
-uv pip install kernels==0.11.7
-uv pip install pymupdf==1.27.2.2
-```
-
-Start the SGLang server:
-```shell
-python -m sglang.launch_server \
-    --model baidu/Unlimited-OCR \
-    --served-model-name Unlimited-OCR \
-    --attention-backend fa3 \
-    --page-size 1 \
-    --mem-fraction-static 0.8 \
-    --context-length 32768 \
-    --enable-custom-logit-processor \
-    --disable-overlap-schedule \
-    --skip-server-warmup \
-    --host 0.0.0.0 \
-    --port 10000
+/workspace/
+├── Dockerfile                  # Образ Docker (PHP + Python + Nginx)
+├── docker-compose.yml          # Конфигурация запуска
+├── README.md                   # Этот файл (Quick Start)
+├── README-UNLIMITED-OCR.MD     # Документация оригинального проекта
+├── IMPROVEMENT_IDEAS.md        # Идеи для развития
+└── webapp/
+    ├── README.md               # Документация приложения
+    ├── API_DOCUMENTATION.md    # Полная документация API v1
+    ├── LLM_CONFIGURATION.md    # Настройка LLM провайдеров
+    ├── python/
+    │   └── app.py              # Flask API backend
+    ├── templates/
+    │   └── index.php           # Веб-интерфейс
+    ├── config/
+    │   └── llm_config.json     # Конфигурация LLM провайдеров
+    ├── uploads/                # Загруженные файлы
+    └── outputs/                # Результаты OCR
 ```
 
-Send streaming requests to the OpenAI-compatible API:
-```python
-import base64
-import json
-import os
-import tempfile
+---
 
-import fitz
-import requests
-from sglang.srt.sampling.custom_logit_processor import DeepseekOCRNoRepeatNGramLogitProcessor
+## ⚙️ Команды управления
 
-server_url = "http://127.0.0.1:10000"
+```powershell
+# Просмотр логов
+docker-compose logs -f
 
-session = requests.Session()
-session.trust_env = False
+# Остановка приложения
+docker-compose down
 
+# Перезапуск
+docker-compose restart
 
-def pdf_to_images(pdf_path, dpi=300):
-    doc = fitz.open(pdf_path)
-    tmp_dir = tempfile.mkdtemp(prefix="pdf_ocr_")
-    mat = fitz.Matrix(dpi / 72, dpi / 72)
-    image_paths = []
-    for i, page in enumerate(doc):
-        image_path = os.path.join(tmp_dir, f"page_{i + 1:04d}.png")
-        page.get_pixmap(matrix=mat).save(image_path)
-        image_paths.append(image_path)
-    doc.close()
-    return image_paths
+# Полная очистка (включая данные)
+docker-compose down -v
 
-
-def encode_image(image_path):
-    ext = os.path.splitext(image_path)[1].lower()
-    mime = "image/jpeg" if ext in (".jpg", ".jpeg") else f"image/{ext.lstrip('.')}"
-    with open(image_path, "rb") as f:
-        data = base64.b64encode(f.read()).decode("utf-8")
-    return {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{data}"}}
-
-
-def build_content(prompt, image_paths):
-    return [{"type": "text", "text": prompt}] + [encode_image(path) for path in image_paths]
-
-
-def generate(prompt, image_paths, image_mode, ngram_window):
-    payload = {
-        "model": "Unlimited-OCR",
-        "messages": [{"role": "user", "content": build_content(prompt, image_paths)}],
-        "temperature": 0,
-        "skip_special_tokens": False,
-        "images_config": {"image_mode": image_mode},
-        "custom_logit_processor": DeepseekOCRNoRepeatNGramLogitProcessor.to_str(),
-        "custom_params": {
-            "ngram_size": 35,
-            "window_size": ngram_window,
-        },
-        "stream": True,
-    }
-    response = session.post(
-        f"{server_url}/v1/chat/completions",
-        headers={"Content-Type": "application/json"},
-        data=json.dumps(payload),
-        timeout=1200,
-        stream=True,
-    )
-    response.raise_for_status()
-
-    chunks = []
-    for line in response.iter_lines(chunk_size=1, decode_unicode=True):
-        if not line or not line.startswith("data: "):
-            continue
-        data = line[len("data: "):]
-        if data == "[DONE]":
-            break
-        event = json.loads(data)
-        delta = event["choices"][0].get("delta", {}).get("content", "")
-        if delta:
-            print(delta, end="", flush=True)
-            chunks.append(delta)
-    print()
-    return "".join(chunks)
-
-
-# Single image supports two configs: gundam or base. Example below uses gundam.
-generate("document parsing.", ["your_image.jpg"], image_mode="gundam", ngram_window=128)
-
-# Multi image (base only)
-generate("Multi page parsing.", ["page1.png", "page2.png"], image_mode="base", ngram_window=1024)
-
-# PDF (base only)
-generate("Multi page parsing.", pdf_to_images("your_doc.pdf", dpi=300), image_mode="base", ngram_window=1024)
+# Обновление кода и пересборка
+docker-compose up --build -d
 ```
 
-For batch inference, `infer.py` starts the SGLang server automatically and sends concurrent requests for an image directory or PDF:
-```shell
-# Image directory
-python infer.py \
-    --image_dir ./examples/images \
-    --output_dir ./outputs \
-    --concurrency 8 \
-    --image_mode gundam
+---
 
-# PDF pages
-python infer.py \
-    --pdf ./examples/document.pdf \
-    --output_dir ./outputs \
-    --concurrency 8 \
-    --image_mode gundam
+## 🔌 API Endpoints
+
+### Основные endpoints
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| POST | `/api/v1/ocr/submit` | Отправка документов на распознавание |
+| GET | `/api/v1/ocr/status/<job_id>` | Статус и прогресс обработки |
+| GET | `/api/v1/ocr/result/<job_id>` | Получение результатов |
+| GET | `/api/v1/ocr/stream/<job_id>` | SSE streaming для real-time обновлений |
+| POST | `/api/v1/ocr/cancel/<job_id>` | Отмена задания |
+| GET | `/api/v1/ocr/list` | Список всех заданий |
+
+### LLM Management
+
+| Метод | Endpoint | Описание |
+|-------|----------|----------|
+| GET | `/api/v1/llm/providers` | Список доступных LLM провайдеров |
+| GET | `/api/v1/llm/config` | Текущая конфигурация LLM |
+| POST | `/api/v1/llm/config` | Обновление конфигурации LLM |
+| GET | `/api/v1/llm/test/<provider>` | Тест подключения к провайдеру |
+
+📖 **Полная документация API**: [webapp/API_DOCUMENTATION.md](webapp/API_DOCUMENTATION.md)
+
+Пример curl:
+```powershell
+# Отправка документа на распознавание
+curl -X POST http://localhost:5000/api/v1/ocr/submit ^
+  -F "files=@document.pdf" ^
+  -F "output_format=json"
+
+# Получение статуса
+curl http://localhost:5000/api/v1/ocr/status/<job_id>
+
+# Выбор LLM провайдера (Ollama)
+curl -X POST http://localhost:5000/api/v1/llm/config ^
+  -H "Content-Type: application/json" ^
+  -d "{\"active_provider\": \"ollama\"}"
 ```
 
-Useful options:
-```shell
---model_dir baidu/Unlimited-OCR   # Local path or Hugging Face model ID
---gpu 0                           # CUDA_VISIBLE_DEVICES value
---server_log ./log/sglang_server.log
+---
+
+## ⚠️ Важные замечания
+
+### Требования к ресурсам
+- **RAM**: Минимум 16GB (рекомендуется 32GB)
+- **GPU**: NVIDIA с поддержкой CUDA (обязательно для быстрой работы)
+- **Диск**: 50GB свободного места
+- **Модель**: ~20GB (загружается при первом запуске)
+
+### Первый запуск
+При первом запуске модель Unlimited-OCR будет загружена из HuggingFace. Это может занять 10-30 минут в зависимости от скорости интернета.
+
+### Поддерживаемые форматы
+- **Входные**: PDF, PNG, JPG, JPEG, WEBP, BMP
+- **Выходные**: TXT, CSV, JSON, HTML
+
+### Максимальный размер файла
+500MB на файл (можно изменить в Dockerfile)
+
+---
+
+## 🐛 Решение проблем
+
+### Контейнер не запускается
+```powershell
+# Проверьте статус Docker Desktop
+# Убедитесь, что WSL 2 включен
+wsl --list --verbose
+
+# Проверьте логи
+docker-compose logs
 ```
 
-For OmniDocBench evaluation, you need to perform the following post-processing.
-```python
-DET_RE = re.compile(r'<\|det\|>([^<\s]+)(?:\s*\[[^\]]*\])?\s*<\|/det\|>(.*)', re.DOTALL)
+### Ошибка с GPU
+```powershell
+# Проверьте доступность GPU
+docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 
-def remove_det(raw: str) -> str:
-    """
-    Strip <|det|>type [bbox]<|/det|> markers, group lines belonging to the
-    same block with \\n, and separate different blocks with \\n\\n.
-    """
-    blocks = []
-    cur = None
-    for line in raw.splitlines():
-        line = line.rstrip()
-        if not line:
-            continue
-        m = DET_RE.match(line)
-        if m:
-            category, content = m.group(1).strip(), m.group(2).strip()
-            if category == 'image':
-                continue
-            if cur is not None:
-                blocks.append(cur)
-            cur = [content] if content else []
-            continue
-        if cur is None:
-            cur = []
-        cur.append(line)
-    if cur is not None:
-        blocks.append(cur)
-    text = '\n\n'.join('\n'.join(b) for b in blocks).strip()
-    return text
+# В Docker Desktop: Settings → Resources → WSL Integration
 ```
 
-## Visualization
+### Медленная обработка
+- Убедитесь, что используется GPU, а не CPU
+- Уменьшите DPI для PDF в настройках
+- Обрабатывайте файлы по очереди вместо пакетной обработки
 
-<img src="assets/long-horizon-ocr.gif" width="100%" alt="Long-horizon OCR demo" />
+### Нет результата после обработки
+```powershell
+# Проверьте логи Python приложения
+docker-compose logs | grep python
 
-## Acknowledgement
+# Проверьте права доступа к папкам
+docker-compose exec unlimited-ocr-app ls -la /app/outputs
+```
 
-We would like to thank [Deepseek-OCR](https://github.com/deepseek-ai/DeepSeek-OCR), [Deepseek-OCR-2](https://github.com/deepseek-ai/DeepSeek-OCR-2), [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) for their valuable models and ideas.
+---
 
-## Citation
-```bibtex
-@misc{yin2026unlimitedocrworks,
-      title={Unlimited OCR Works}, 
-      author={Youyang Yin and Huanhuan Liu and YY and Qunyi Xie and Chaorun Liu and Shiqi Yang and Shaohua Wang and Zhanlong Liu and Hao Zou and Jinyue Chen and Shu Wei and Jingjing Wu and Mingxin Huang and Zhen Wu and Guibin Wang and Tengyu Du and Lei Jia},
-      year={2026},
-      eprint={2606.23050},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2606.23050}, 
-}
+## 📞 Поддержка и документация
+
+### Основная документация
+- 📄 [Документация приложения](webapp/README.md)
+- 📖 [API Documentation v1](webapp/API_DOCUMENTATION.md)
+- 🤖 [LLM Configuration Guide](webapp/LLM_CONFIGURATION.md)
+- 💡 [Идеи для улучшения](IMPROVEMENT_IDEAS.md)
+
+### Оригинальный проект
+- 📚 [Оригинальный Unlimited-OCR](https://github.com/baidu/Unlimited-OCR)
+- 📄 [Документация модели](README-UNLIMITED-OCR.MD)
+- 🤗 [Hugging Face Model](https://huggingface.co/baidu/Unlimited-OCR)
+- 📑 [arXiv Paper](https://arxiv.org/abs/2606.23050)
+
+### LLM Провайдеры
+- 🔷 [SGLang Documentation](https://docs.sglang.ai/)
+- 🦙 [llama.cpp GitHub](https://github.com/ggerganov/llama.cpp)
+- 🦙 [Ollama Documentation](https://ollama.ai/docs)
+
+---
+
+## 🎯 Что дальше?
+
+После успешного запуска вы можете:
+
+1. **Настроить под свои нужды**: Измените `Dockerfile` и `docker-compose.yml`
+2. **Добавить функции**: Смотрите [IMPROVEMENT_IDEAS.md](IMPROVEMENT_IDEAS.md)
+3. **Интегрировать с другими системами**: Используйте REST API
+4. **Масштабировать**: Настройте Kubernetes для production
+
+**Удачи в использовании! 🎉**
