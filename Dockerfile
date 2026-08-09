@@ -38,9 +38,8 @@ RUN pip install --no-cache-dir \
 RUN sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/*/fpm/php.ini && \
     sed -i 's/listen = \/run\/php\/php.*-fpm.sock/listen = 9000/g' /etc/php/*/fpm/pool.d/www.conf
 
-# Create Nginx config file
-RUN cat > /etc/nginx/sites-available/default << 'NGINX_EOF'
-server {
+# Create Nginx config
+RUN echo 'server {
     listen 80;
     server_name localhost;
     root /app/templates;
@@ -79,12 +78,10 @@ server {
     location /outputs/ {
         alias /app/outputs/;
     }
-}
-NGINX_EOF
+}' > /etc/nginx/sites-available/default
 
-# Create Supervisor config file
-RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'SUPERVISOR_EOF'
-[supervisord]
+# Create Supervisor config
+RUN echo '[supervisord]
 nodaemon=true
 
 [program:nginx]
@@ -108,8 +105,7 @@ autostart=true
 autorestart=true
 stderr_logfile=/var/log/python/error.log
 stdout_logfile=/var/log/python/access.log
-environment=PYTHONUNBUFFERED="1"
-SUPERVISOR_EOF
+environment=PYTHONUNBUFFERED="1"' > /etc/supervisor/conf.d/supervisord.conf
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/uploads /app/outputs /var/log/nginx /var/log/php-fpm /var/log/python && \
