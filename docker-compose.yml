@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  unlimited-ocr:
+    build: .
+    container_name: unlimited-ocr-app
+    ports:
+      - "8080:80"
+    volumes:
+      # Код приложения (changes сразу видны без пересборки)
+      - ./python:/app/python
+      - ./webapp:/app/webapp
+      # Конфигурационные файлы (changes сразу видны без пересборки)
+      - ./config/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
+      - ./config/nginx.conf:/etc/nginx/sites-available/default
+      # Директории для файлов
+      - ./uploads:/app/uploads
+      - ./outputs:/app/outputs
+    restart: unless-stopped

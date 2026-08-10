@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlimited OCR</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover { border-color: #667eea; }
+        .upload-area.dragover { border-color: #667eea; background: #f0f4ff; }
+        input[type="file"] { display: none; }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #5a6fd6; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.info { background: #e3f2fd; color: #1976d2; }
+        .status.success { background: #e8f5e9; color: #388e3c; }
+        .status.error { background: #ffebee; color: #d32f2f; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+        .progress {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+            margin: 15px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #667eea;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Unlimited OCR</h1>
+        <p>Распознавание текста с помощью LLM</p>
+        
+        <div class="upload-area" id="dropZone">
+            <p>Перетащите файл сюда или кликните для выбора</p>
+            <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.pdf">
+        </div>
+        
+        <div id="fileInfo" style="display:none;">
+            <p><strong>Выбран файл:</strong> <span id="fileName"></span></p>
+        </div>
+        
+        <div>
+            <label>Формат вывода:</label>
+            <select id="formatSelect">
+                <option value="txt">TXT</option>
+                <option value="md">Markdown</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
+        
+        <button class="btn" id="startBtn" disabled>Запустить распознавание</button>
+        
+        <div class="progress" id="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="status" id="status"></div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let selectedFile = null;
+        let currentJobId = null;
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const startBtn = document.getElementById('startBtn');
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+        const progressDiv = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+        const formatSelect = document.getElementById('formatSelect');
+
+        // Drag & Drop
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileInfo.style.display = 'block';
+            startBtn.disabled = false;
+            hideStatus();
+            resultDiv.style.display = 'none';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusDiv.style.display = 'none';
+        }
+
+        startBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            startBtn.disabled = true;
+            progressDiv.style.display = 'block';
+            progressBar.style.width = '10%';
+            hideStatus();
+            resultDiv.style.display = 'none';
+
+            try {
+                // Загрузка файла
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('format', formatSelect.value);
+
+                showStatus('Загрузка файла...', 'info');
+                progressBar.style.width = '30%';
+
+                const uploadResponse = await fetch(`${API_BASE}/ocr/submit`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error(`Ошибка загрузки: ${uploadResponse.status}`);
+                }
+
+                const uploadData = await uploadResponse.json();
+                currentJobId = uploadData.job_id;
+                showStatus(`Задача создана: ${currentJobId}. Обработка...`, 'info');
+                progressBar.style.width = '50%';
+
+                // Ожидание результата через Server-Sent Events
+                await waitForResult(currentJobId);
+
+            } catch (error) {
+                showStatus(`Ошибка: ${error.message}`, 'error');
+                startBtn.disabled = false;
+                progressDiv.style.display = 'none';
+            }
+        });
+
+        async function waitForResult(jobId) {
+            return new Promise((resolve, reject) => {
+                const eventSource = new EventSource(`${API_BASE}/ocr/stream/${jobId}`);
+                let lastStatus = '';
+
+                eventSource.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.status === 'processing') {
+                        showStatus('Обработка продолжается...', 'info');
+                        progressBar.style.width = '70%';
+                    } else if (data.status === 'completed') {
+                        eventSource.close();
+                        progressBar.style.width = '100%';
+                        showStatus('Распознавание завершено!', 'success');
+                        resultDiv.textContent = data.result || 'Результат пуст';
+                        resultDiv.style.display = 'block';
+                        startBtn.disabled = false;
+                        setTimeout(() => { progressDiv.style.display = 'none'; }, 2000);
+                        resolve();
+                    } else if (data.status === 'failed') {
+                        eventSource.close();
+                        showStatus(`Ошибка обработки: ${data.error}`, 'error');
+                        startBtn.disabled = false;
+                        progressDiv.style.display = 'none';
+                        reject(new Error(data.error));
+                    } else if (data.status === 'timeout') {
+                        eventSource.close();
+                        showStatus('Превышено время ожидания', 'error');
+                        startBtn.disabled = false;
+                        progressDiv.style.display = 'none';
+                        reject(new Error('Timeout'));
+                    } else if (data.error) {
+                        eventSource.close();
+                        showStatus(`Ошибка: ${data.error}`, 'error');
+                        startBtn.disabled = false;
+                        progressDiv.style.display = 'none';
+                        reject(new Error(data.error));
+                    }
+                };
+
+                eventSource.onerror = (error) => {
+                    console.error('SSE error:', error);
+                    eventSource.close();
+                    // Не показываем ошибку, так как это может быть просто разрыв соединения при завершении
+                    if (lastStatus !== 'completed' && lastStatus !== 'failed') {
+                        showStatus('Соединение прервано. Проверьте статус задачи.', 'error');
+                        startBtn.disabled = false;
+                        progressDiv.style.display = 'none';
+                    }
+                };
+            });
+        }
+    </script>
+</body>
+</html>
